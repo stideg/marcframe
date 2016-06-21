@@ -1,0 +1,109 @@
+#Comments to https://github.com/libris/whelk-core/blob/master/src/main/resources/ext/marcframe.json
+#100, 110, 111
+
+## 100
+### "attributedTo": skulle ändras, men till vad? "mainHeading"? Använd enbart på 1XX.
+### 100 "$b": {"property": "numeration"}: Innehåller även efterföljande namn, t.ex. "$a Gustav $b II Adolf". Vid återkonvertering rekommenderas att bortse från $b. Ingen annan standard delar in namnet så. Namnet bör skrivas "Gustav II Adolf"
+### "$c": {"addProperty": "personTitle"}: "$c" förekommer på två ställen i olika betydelser. Före "$d" som "personTitle", efter "$d" som ett särskiljande/förklarande parentestillägg. "otherDesignation"?
+### "$q": {"property": "label"}: har en specifik betydelse vilket borde återspeglas i namnet. "fullerFormOfName"?
+
+
+"100": {
+      "NOTE:candidate:aboutEntity": "?work",
+      "resourceType": "Person",
+      "match-i1": {
+        "0": {
+          "$a": {"property": "name", "required": true}
+        },
+        "1": {
+          "$a": {
+            "property": "name", "splitValuePattern": "([^,]+)(?:,\\s*([^,]+))",
+            "splitValueProperties": ["familyName", "givenName"], "rejoin": ", ",
+            "required": true
+          }
+        },
+        "3": {
+          "resourceType": "Family",
+          "$a": {"property": "name", "required": true}
+        }
+      },
+      "link": "attributedTo",
+      "computeLinks": {"use": "$4", "mapping": "relatorCode"},
+      "$a": {"required": true},
+      "$b": {"property": "numeration"},
+      "$c": {"addProperty": "personTitle"},
+      "$d": {"property": "lifeSpan", "splitValuePattern": "(\\d+)(?:\\s*-\\s*(\\d+))?",
+        "splitValueProperties": ["birthYear", "deathYear"], "rejoin": "-", "allowEmpty": true},
+      "$j": {"property": "comment"},
+      "$q": {"property": "label"},
+      "_spec": [
+        {
+          "source": {
+            "100": {"ind1": "1", "ind2": " ", "subfields": [
+              {"a": "Jansson, Tove,"},
+              {"d": "1914-2001"}
+          ]}},
+          "normalized": {
+            "100": {"ind1": "1", "ind2": " ", "subfields": [
+              {"a": "Jansson, Tove"},
+              {"d": "1914-2001"}
+          ]}},
+          "result": {"about": {
+            "attributedTo": {"@type": "Person",
+              "familyName":  "Jansson",
+              "givenName":  "Tove",
+              "birthYear":  "1914",
+              "deathYear":  "2001"}
+          }}
+        }
+      ]
+    },
+
+## 110
+### "attributedTo": skulle ändras, men till vad? "mainHeading"? Använd enbart på 1XX.
+### splitValuePattern:
+### splitValueProperties:
+### "$a" name, "$b" subordinateUnit?
+### Exempel "110	1 	$a Sverige $b Finansinspektionen", "710	2 	$a Kungliga biblioteket", "710	2 	$a Stockholms universitet. $b Zoologiska institutionen" ($b kan upprepas)
+
+
+    "110": {
+      "NOTE:candidate:aboutEntity": "?work",
+      "resourceType": "Organization",
+      "link": "attributedTo",
+      "TODO": [
+        "change splitValueProperties to work on result, to handle match combo",
+        "splitByRepetitionAndInterpunctionPattern ($n $d ...)?"
+      ],
+      "i1": {"marcDefault": "2"},
+      "match-i1": {
+        "0": {
+          "$a": {"property": "name", "required": true}
+        },
+        "1": {
+          "$a": {
+            "property": "name", "splitValuePattern": "([^,]+)(?:,\\s*([^,]+))",
+            "splitValueProperties": ["familyName", "givenName"], "rejoin": ", ",
+            "required": true
+          }
+        }
+      },
+      "match-code": {
+        "b": {
+          "$a": {"link": "isPartOf", "resourceType": "Organization", "property": "name"},
+          "$b": {"property": "name"}
+        }
+      },
+      "computeLinks": {"use": "$4", "mapping": "relatorCode"},
+      "$a": {"property": "name"}
+    },
+
+## 111
+### a, c, d, e, n, q. Ordning (n : d : c). Underordnad enhet i e, inte b. 111$q inte samma som 100$q
+
+    "111": {
+      "inherit": "110",
+      "resourceType": "Meeting",
+      "$c": {"link": "location", "resourceType": "Place", "property": "label"},
+      "$d": {"property": "date"}
+    },
